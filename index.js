@@ -1,53 +1,55 @@
 import words from "./words.json" with { type: "json" };
 const inputs = process.argv.slice(2)
 
-const inc = new Set()
-const exc = new Set()
-const hash = {}
-const unHash = {}
+const l = inputs[0].split('-')[0].length
+const letters = ['а', 'б','в','г','д','е','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я']
+
+const mask = Array(l).fill(0).map(() => new Set(letters))
+
+const hasInc = (index, word, key) => {
+  const letter = word[index];
+
+  for (let i = 0; i < l; i += 1) {
+    if (i === index) {
+      continue
+    }
+
+    if (letter === word[i]) {
+      if (['1', '2'].includes(key[i])) {
+        return true
+      }
+    }
+  }
+  return false
+}
 
 inputs.forEach((item) => {
   const [word, key] = item.split('-')
-  
-  for (let i = 0; i < word.length; i += 1) {
+
+  for (let i = 0; i < l; i += 1) {
     if (key[i] === '2') {
-      hash[i] = word[i]
-      inc.add(word[i])
+      mask[i] = new Set(word[i])
     } else if (key[i] === '1') {
-      inc.add(word[i])
-      unHash[i] = word[i]
+      mask[i].delete(word[i])
     } else if (key[i] === '0') {
-      exc.add(word[i])
-      if (inc.has(word[i])) {
-        unHash[i] = word[i]
+      if (hasInc(i, word, key)) {
+        mask[i].delete(word[i])
+      } else {
+        mask.forEach(set => set.delete(word[i]))
       }
     }
   }
 })
 
-console.log(unHash)
 
-
-const filtered1 = words.filter((word) => {
-  for (let i in hash) {
-    if (hash[i] !== word[i]) {
+const filtered = words.filter((word) => {
+  for (let i = 0; i < l; i += 1) {
+    if (!(mask[i].has(word[i]))) {
       return false
     }
-    if (unHash[i] === word[i]) {
-      return false
-    }
+
   }
   return true
-});
+})
 
-const excInc = Array.from(inc)
-const excArr = Array.from(exc).filter(letter => !inc.has(letter))
-
-const filtered2 = filtered1.filter((word) => {
-  if (excArr.some((letter) => word.includes(letter))) {
-    return false;
-  }
-  return excInc.every((letter) => word.includes(letter));
-});
-
-console.log(filtered2);
+console.log(filtered);
