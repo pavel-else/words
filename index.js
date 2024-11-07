@@ -6,6 +6,8 @@ const letters = ['а', 'б','в','г','д','е','ж','з','и','й','к','л','�
 
 const mask = Array(l).fill(0).map(() => new Set(letters))
 
+const enabledLetters = new Set()
+
 const hasInc = (index, word, key) => {
   const letter = word[index];
 
@@ -29,8 +31,10 @@ inputs.forEach((item) => {
   for (let i = 0; i < l; i += 1) {
     if (key[i] === '2') {
       mask[i] = new Set(word[i])
+      enabledLetters.add(word[i])
     } else if (key[i] === '1') {
       mask[i].delete(word[i])
+      enabledLetters.add(word[i])
     } else if (key[i] === '0') {
       if (hasInc(i, word, key)) {
         mask[i].delete(word[i])
@@ -41,15 +45,22 @@ inputs.forEach((item) => {
   }
 })
 
-
-const filtered = words.filter((word) => {
+const filtered1 = words.filter((word) => {
   for (let i = 0; i < l; i += 1) {
     if (!(mask[i].has(word[i]))) {
       return false
     }
-
   }
   return true
 })
 
-console.log(filtered);
+const filtered2 = filtered1.filter((word) => {
+  for (let letter of enabledLetters) {
+    if (!word.includes(letter)) {
+      return false
+    }
+  }
+  return true
+})
+
+console.log(filtered2);
